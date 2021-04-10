@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             this.button1 = new System.Windows.Forms.Button();
             this.button2 = new System.Windows.Forms.Button();
             this.button3 = new System.Windows.Forms.Button();
@@ -52,6 +53,15 @@
             this.label1 = new System.Windows.Forms.Label();
             this.txtSend = new System.Windows.Forms.TextBox();
             this.btnSend = new System.Windows.Forms.Button();
+            this.btnForwards = new System.Windows.Forms.Button();
+            this.btnBackwards = new System.Windows.Forms.Button();
+            this.btnStop = new System.Windows.Forms.Button();
+            this.btnLeft = new System.Windows.Forms.Button();
+            this.btnRight = new System.Windows.Forms.Button();
+            this.button21 = new System.Windows.Forms.Button();
+            this.axVLCPlugin21 = new AxAXVLC.AxVLCPlugin2();
+            this.txtClients = new System.Windows.Forms.TextBox();
+            ((System.ComponentModel.ISupportInitialize)(this.axVLCPlugin21)).BeginInit();
             this.SuspendLayout();
             // 
             // button1
@@ -260,7 +270,7 @@
             this.textBox1.Location = new System.Drawing.Point(295, 99);
             this.textBox1.Multiline = true;
             this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(325, 234);
+            this.textBox1.Size = new System.Drawing.Size(325, 48);
             this.textBox1.TabIndex = 21;
             // 
             // label1
@@ -289,11 +299,96 @@
             this.btnSend.UseVisualStyleBackColor = true;
             this.btnSend.Click += new System.EventHandler(this.btnSend_Click);
             // 
+            // btnForwards
+            // 
+            this.btnForwards.Location = new System.Drawing.Point(301, 397);
+            this.btnForwards.Name = "btnForwards";
+            this.btnForwards.Size = new System.Drawing.Size(109, 60);
+            this.btnForwards.TabIndex = 25;
+            this.btnForwards.Text = "FORWARDS";
+            this.btnForwards.UseVisualStyleBackColor = true;
+            this.btnForwards.Click += new System.EventHandler(this.btnForwards_Click);
+            // 
+            // btnBackwards
+            // 
+            this.btnBackwards.Location = new System.Drawing.Point(301, 529);
+            this.btnBackwards.Name = "btnBackwards";
+            this.btnBackwards.Size = new System.Drawing.Size(109, 60);
+            this.btnBackwards.TabIndex = 26;
+            this.btnBackwards.Text = "BACKWARDS";
+            this.btnBackwards.UseVisualStyleBackColor = true;
+            this.btnBackwards.Click += new System.EventHandler(this.btnBackwards_Click);
+            // 
+            // btnStop
+            // 
+            this.btnStop.Location = new System.Drawing.Point(301, 463);
+            this.btnStop.Name = "btnStop";
+            this.btnStop.Size = new System.Drawing.Size(109, 60);
+            this.btnStop.TabIndex = 27;
+            this.btnStop.Text = "STOP";
+            this.btnStop.UseVisualStyleBackColor = true;
+            this.btnStop.Click += new System.EventHandler(this.btnStop_Click);
+            // 
+            // btnLeft
+            // 
+            this.btnLeft.Location = new System.Drawing.Point(186, 463);
+            this.btnLeft.Name = "btnLeft";
+            this.btnLeft.Size = new System.Drawing.Size(109, 60);
+            this.btnLeft.TabIndex = 28;
+            this.btnLeft.Text = "LEFT";
+            this.btnLeft.UseVisualStyleBackColor = true;
+            this.btnLeft.Click += new System.EventHandler(this.btnLeft_Click);
+            // 
+            // btnRight
+            // 
+            this.btnRight.Location = new System.Drawing.Point(416, 463);
+            this.btnRight.Name = "btnRight";
+            this.btnRight.Size = new System.Drawing.Size(109, 60);
+            this.btnRight.TabIndex = 29;
+            this.btnRight.Text = "RIGHT";
+            this.btnRight.UseVisualStyleBackColor = true;
+            this.btnRight.Click += new System.EventHandler(this.btnRight_Click);
+            // 
+            // button21
+            // 
+            this.button21.Location = new System.Drawing.Point(692, 555);
+            this.button21.Name = "button21";
+            this.button21.Size = new System.Drawing.Size(98, 33);
+            this.button21.TabIndex = 31;
+            this.button21.Text = "button21";
+            this.button21.UseVisualStyleBackColor = true;
+            this.button21.Click += new System.EventHandler(this.button21_Click);
+            // 
+            // axVLCPlugin21
+            // 
+            this.axVLCPlugin21.Enabled = true;
+            this.axVLCPlugin21.Location = new System.Drawing.Point(657, 49);
+            this.axVLCPlugin21.Name = "axVLCPlugin21";
+            this.axVLCPlugin21.OcxState = ((System.Windows.Forms.AxHost.State)(resources.GetObject("axVLCPlugin21.OcxState")));
+            this.axVLCPlugin21.Size = new System.Drawing.Size(405, 366);
+            this.axVLCPlugin21.TabIndex = 32;
+            // 
+            // txtClients
+            // 
+            this.txtClients.Location = new System.Drawing.Point(619, 454);
+            this.txtClients.Multiline = true;
+            this.txtClients.Name = "txtClients";
+            this.txtClients.Size = new System.Drawing.Size(257, 51);
+            this.txtClients.TabIndex = 33;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(643, 351);
+            this.ClientSize = new System.Drawing.Size(1125, 696);
+            this.Controls.Add(this.txtClients);
+            this.Controls.Add(this.axVLCPlugin21);
+            this.Controls.Add(this.button21);
+            this.Controls.Add(this.btnRight);
+            this.Controls.Add(this.btnLeft);
+            this.Controls.Add(this.btnStop);
+            this.Controls.Add(this.btnBackwards);
+            this.Controls.Add(this.btnForwards);
             this.Controls.Add(this.btnSend);
             this.Controls.Add(this.txtSend);
             this.Controls.Add(this.label1);
@@ -320,6 +415,7 @@
             this.Controls.Add(this.button1);
             this.Name = "Form1";
             this.Text = "Form1";
+            ((System.ComponentModel.ISupportInitialize)(this.axVLCPlugin21)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -351,6 +447,14 @@
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.TextBox txtSend;
         private System.Windows.Forms.Button btnSend;
+        private System.Windows.Forms.Button btnForwards;
+        private System.Windows.Forms.Button btnBackwards;
+        private System.Windows.Forms.Button btnStop;
+        private System.Windows.Forms.Button btnLeft;
+        private System.Windows.Forms.Button btnRight;
+        private System.Windows.Forms.Button button21;
+        private AxAXVLC.AxVLCPlugin2 axVLCPlugin21;
+        private System.Windows.Forms.TextBox txtClients;
     }
 }
 

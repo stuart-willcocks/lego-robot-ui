@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Net;
 using System.Net.Sockets;
+using System.Timers;
 
 namespace RobotControl
 {
@@ -16,66 +17,20 @@ namespace RobotControl
     {
         private Socket _serverSocket, _clientSocket;
         private byte[] _buffer;
+        private bool _connected;
+        System.Timers.Timer _timer;
 
 
         public Form1()
         {
             InitializeComponent();
+            _connected = false;
+            
+            _timer = new System.Timers.Timer();
+            _timer.Elapsed += new System.Timers.ElapsedEventHandler(OnTimedEvent);
+            _timer.Interval = 1000;
             StartServer();
-        }
-
-        private void StartServer()
-        {
-            try
-            {
-                _serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                _serverSocket.Bind(new IPEndPoint(IPAddress.Any, 50001));
-                _serverSocket.Listen(0);
-                _serverSocket.BeginAccept(new AsyncCallback(AcceptCallback), null);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message, Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-        }
-
-        private void AcceptCallback(IAsyncResult AR)
-        {
-            try
-            {
-                _clientSocket = _serverSocket.EndAccept(AR);
-                _buffer = new byte[_clientSocket.ReceiveBufferSize];
-                _clientSocket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(ReceiveCallback), null);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message, Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-        }
-
-        private void Send(string send)
-        {
-            byte[] send_buf;
-            send += "\r\n";
-            send_buf = Encoding.ASCII.GetBytes(send);
-            _clientSocket.Send(send_buf, SocketFlags.None);
-        }
-
-        private void ReceiveCallback(IAsyncResult AR)
-        {
-            try
-            {
-                int received = _clientSocket.EndReceive(AR);
-                Array.Resize(ref _buffer, received);
-                string text = Encoding.ASCII.GetString(_buffer);
-                AppendToTextbox(text);
-                Array.Resize(ref _buffer, _clientSocket.ReceiveBufferSize);
-                _clientSocket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(ReceiveCallback), null);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message, Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
+            
         }
 
         private void AppendToTextbox(string text)
@@ -85,8 +40,106 @@ namespace RobotControl
                 textBox1.Text = textBox1.Text + text + "\r\n";
             });
             this.Invoke(invoker);
-
         }
+
+        private void AppendToClientsTextbox(string text)
+        {
+            MethodInvoker invoker = new MethodInvoker(delegate
+            {
+                txtClients.Text = txtClients.Text + text + "\r\n";
+            });
+            this.Invoke(invoker);
+        }
+
+        private  void OnTimedEvent(object source, ElapsedEventArgs e)
+        {
+            string text = "*";
+            //AppendToTextbox(text);
+            Send(text);
+        }
+
+        private void StartServer()
+        {
+
+            try
+            {
+                _serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                _serverSocket.Bind(new IPEndPoint(IPAddress.Any, 50001));
+                _serverSocket.Listen(0);
+                _serverSocket.BeginAccept(new AsyncCallback(AcceptCallback), null);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("[StartServer]" + ex.Message, Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+
+            _timer.Enabled = true;
+        }
+
+        private void AcceptCallback(IAsyncResult AR)
+        {
+            try
+            {
+                _clientSocket = _serverSocket.EndAccept(AR);
+                var remoteEndPoint = _clientSocket.RemoteEndPoint as IPEndPoint;
+                var remoteAddress = remoteEndPoint.Address;
+                var remotePort = remoteEndPoint.Port;
+                AppendToClientsTextbox(remoteAddress.ToString() + " connected");
+                _buffer = new byte[_clientSocket.ReceiveBufferSize];
+                _clientSocket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(ReceiveCallback), null);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("[AcceptCallback]" + ex.Message, Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void Send(string send)
+        {
+            byte[] send_buf;
+            //send += "\r\n";
+            send_buf = Encoding.ASCII.GetBytes(send);
+
+            if (_clientSocket != null)
+            {
+                try
+                {
+                    _clientSocket.Send(send_buf, SocketFlags.None);
+                }
+
+                catch (SocketException ex)
+                {
+                    AppendToTextbox("socket error");
+                }
+            }
+            
+            
+        }
+
+        private void ReceiveCallback(IAsyncResult AR)
+        {
+            try
+            {
+                int received = _clientSocket.EndReceive(AR);
+                var remoteEndPoint = _clientSocket.RemoteEndPoint as IPEndPoint;
+                var remoteAddress = remoteEndPoint.Address;
+                var remotePort = remoteEndPoint.Port;
+                Array.Resize(ref _buffer, received);
+                string text = "IP address: " + remoteAddress.ToString() + ' ' + Encoding.ASCII.GetString(_buffer);
+                AppendToTextbox(text);
+                Array.Resize(ref _buffer, _clientSocket.ReceiveBufferSize);
+                _clientSocket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(ReceiveCallback), null);
+            }
+            catch (System.Exception ex)
+            {
+
+                //MessageBox.Show("[ReceiveCallback]" + ex.Message + " code ", Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                _clientSocket.Close();
+                StartServer();
+            }
+        }
+
+
 
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
         {
@@ -210,6 +263,61 @@ namespace RobotControl
                 return true;
             }
 
+            if (keyData == Keys.Up)
+            {
+                btnForwards.PerformClick();
+                return true;
+            }
+
+            if (keyData == Keys.Down)
+            {
+                btnBackwards.PerformClick();
+                return true;
+            }
+
+            if (keyData == Keys.Left)
+            {
+                btnLeft.PerformClick();
+                return true;
+            }
+
+            if (keyData == Keys.Right)
+            {
+                btnRight.PerformClick();
+                return true;
+            }
+
+            if (keyData == Keys.Escape)
+            {
+                btnStop.PerformClick();
+                return true;
+            }
+
+            if (keyData == Keys.Space)
+            {
+                btnStop.PerformClick();
+                return true;
+            }
+
+            if (keyData == Keys.D1)
+            {
+                Send(":SLOW");
+                return true;
+            }
+
+            if (keyData == Keys.D2)
+            {
+                Send(":MEDIUM");
+                return true;
+            }
+
+            if (keyData == Keys.D3)
+            {
+                Send(":FAST");
+                return true;
+            }
+
+
             return base.ProcessCmdKey(ref msg, keyData);
         }
 
@@ -318,6 +426,40 @@ namespace RobotControl
         private void btnSend_Click(object sender, EventArgs e)
         {
             Send(txtSend.Text);
+        }
+
+        private void btnForwards_Click(object sender, EventArgs e)
+        {
+            Send(":FORWARDS");
+        }
+
+        private void btnStop_Click(object sender, EventArgs e)
+        {
+            Send(":STOP");
+        }
+
+        private void btnBackwards_Click(object sender, EventArgs e)
+        {
+            Send(":BACKWARDS");
+        }
+
+        private void btnLeft_Click(object sender, EventArgs e)
+        {
+            Send(":TURNLEFT");
+        }
+
+        private void btnRight_Click(object sender, EventArgs e)
+        {
+            Send(":TURNRIGHT");
+        }
+
+        private void button21_Click(object sender, EventArgs e)
+        {
+            //axvlcplugin = "http://192.168.86.4:8081";
+            //axVLCPlugin21.BaseURL=("http://192.168.86.4:8081");
+            axVLCPlugin21.playlist.add("http://192.168.86.4:8081");
+            axVLCPlugin21.playlist.play();
+            axVLCPlugin21.AutoPlay = true;
         }
 
         private void button20_Click(object sender, EventArgs e)
